@@ -29,9 +29,7 @@ namespace Excel_to_ISB_preset_files
             xlApp = new Microsoft.Office.Interop.Excel.Application();
             nfi = new NumberFormatInfo();
             nfi.NumberDecimalSeparator = ".";
-            sw = new StreamWriter("myxml.xml");
-            sw.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            sw.WriteLine("<presets>");
+            
             
         }
 
@@ -48,49 +46,97 @@ namespace Excel_to_ISB_preset_files
 
         private void button2_Click(object sender, EventArgs e)
         {
-            foreach (string file in files)
-            {
-                try
+            using (sw = new StreamWriter("myxml.xml"))
+            { 
+                sw.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                sw.WriteLine("<presets>");
+
+                foreach (string file in files)
                 {
-                    wb = xlApp.Workbooks.Open(Filename: file, IgnoreReadOnlyRecommended: true);
-                    Excel.Worksheet ws = wb.Worksheets[1];
-                    Console.WriteLine(ws.Name);
-
-                    int lastRow = ws.Cells.Find("*", System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious, false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
-                    
-                    for (int i = 1; i <= lastRow; i++)
+                    try
                     {
-                        try
+                        wb = xlApp.Workbooks.Open(Filename: file, IgnoreReadOnlyRecommended: true);
+                        Excel.Worksheet ws = wb.Worksheets[1];
+                        //Console.WriteLine(ws.Name);
+
+                        int lastRow = ws.Cells.Find("*", System.Reflection.Missing.Value, System.Reflection.Missing.Value, System.Reflection.Missing.Value, Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious, false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
+                    
+                        for (int i = 1; i <= lastRow; i++)
                         {
-                            string cell = (String) ws.Cells[i, 3].Value2;
-
-                            if (cell[0].CompareTo('M') == 0 && Int32.TryParse(cell[1].ToString(), out number))
+                            try
                             {
-                                string value = ws.Cells[i, 4].Value2;
-                                //Console.WriteLine(cell + "  " + value);
+                                string cell = (String) ws.Cells[i, 3].Value2;
 
-                                string[] words = value.Split(' ');
-                                double amp;
-                                Double.TryParse(words[0], NumberStyles.Number, nfi, out amp);
-                                string unit = words[1];
-                                Console.WriteLine(amp.ToString(nfi) + "  " + unit);
+                                if (cell[0].CompareTo('M') == 0 && Int32.TryParse(cell[1].ToString(), out number))
+                                {
+                                    string value = ws.Cells[i, 4].Value2;
+                                    //Console.WriteLine(cell + "  " + value);
 
-                                //sw.Write
+                                    string[] words = value.Split(' ');
+                                    double amp;
+                                    Double.TryParse(words[0], NumberStyles.Number, nfi, out amp);
+                                    string unit = words[1];
+                                    Console.Write(".");
+
+                                    switch (unit)
+                                    {
+                                        case "mV@80Hz":
+                                            sw.WriteLine("  <Preset>");
+                                            sw.WriteLine("    <name>" + cell + "</name>");
+                                            sw.WriteLine("    <frequency>80</frequency>");
+                                            sw.WriteLine("    <amplitude>" + amp + "</amplitude>");
+                                            sw.WriteLine("    <offset>-8</offset>");
+                                            sw.WriteLine("  </Preset>");
+                                            break;
+
+                                        case "mV@160Hz":
+                                            sw.WriteLine("  <Preset>");
+                                            sw.WriteLine("    <name>" + cell + "</name>");
+                                            sw.WriteLine("    <frequency>160</frequency>");
+                                            sw.WriteLine("    <amplitude>" + amp + "</amplitude>");
+                                            sw.WriteLine("    <offset>-8</offset>");
+                                            sw.WriteLine("  </Preset>");
+                                            break;
+                                            
+                                        case "Hz":
+                                            sw.WriteLine("  <Preset>");
+                                            sw.WriteLine("    <name>" + cell + "</name>");
+                                            sw.WriteLine("    <frequency>" + amp + "</frequency>");
+                                            sw.WriteLine("    <amplitude>" + 1 + "</amplitude>");
+                                            sw.WriteLine("    <offset>-8</offset>");
+                                            sw.WriteLine("  </Preset>");
+                                            break;
+
+                                        case "V":
+                                            sw.WriteLine("  <Preset>");
+                                            sw.WriteLine("    <name>" + cell + "</name>");
+                                            sw.WriteLine("    <frequency>0</frequency>");
+                                            sw.WriteLine("    <amplitude>0</amplitude>");
+                                            sw.WriteLine("    <offset>" + amp + "</offset>");
+                                            sw.WriteLine("  </Preset>");
+                                            break;
+
+                                        default:
+                                            Console.WriteLine("Unhandled unit: " + unit);
+                                            break;
+
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                //Console.WriteLine(exc.Message);
                             }
                         }
-                        catch (Exception)
-                        {
-                            //Console.WriteLine(exc.Message);
-                        }
+                        wb.Close();
                     }
-
-                    wb.Close();
-                    sw.Close();
+                    
+                    catch (System.Runtime.InteropServices.COMException ex)
+                    {
+                        Console.WriteLine(ex.Message.ToString());
+                    }
                 }
-                catch (System.Runtime.InteropServices.COMException ex)
-                {
-                    Console.WriteLine(ex.Message.ToString());
-                }
+                sw.WriteLine("</presets>");
             }
         }
     }
