@@ -84,7 +84,7 @@ namespace Excel_to_ISB_preset_files
                                             sw.WriteLine("  <Preset>");
                                             sw.WriteLine("    <name>" + cell + "</name>");
                                             sw.WriteLine("    <frequency>80</frequency>");
-                                            sw.WriteLine("    <amplitude>" + amp + "</amplitude>");
+                                            sw.WriteLine("    <amplitude>" + amp/1000 + "</amplitude>");
                                             sw.WriteLine("    <offset>-8</offset>");
                                             sw.WriteLine("  </Preset>");
                                             break;
@@ -93,7 +93,7 @@ namespace Excel_to_ISB_preset_files
                                             sw.WriteLine("  <Preset>");
                                             sw.WriteLine("    <name>" + cell + "</name>");
                                             sw.WriteLine("    <frequency>160</frequency>");
-                                            sw.WriteLine("    <amplitude>" + amp + "</amplitude>");
+                                            sw.WriteLine("    <amplitude>" + amp/1000 + "</amplitude>");
                                             sw.WriteLine("    <offset>-8</offset>");
                                             sw.WriteLine("  </Preset>");
                                             break;
