@@ -65,11 +65,11 @@ namespace Excel_to_ISB_preset_files
                         {
                             try
                             {
-                                string cell = (String) ws.Cells[i, 3].Value2;
+                                string cell = (String) ws.Cells[i, 4].Value2;
 
                                 if (cell[0].CompareTo('M') == 0 && Int32.TryParse(cell[1].ToString(), out number))
                                 {
-                                    string value = ws.Cells[i, 4].Value2;
+                                    string value = ws.Cells[i, 7].Value2;
                                     //Console.WriteLine(cell + "  " + value);
 
                                     string[] words = value.Split(' ');
@@ -123,9 +123,9 @@ namespace Excel_to_ISB_preset_files
                                     }
                                 }
                             }
-                            catch (Exception)
+                            catch (Exception exc)
                             {
-                                //Console.WriteLine(exc.Message);
+                                Console.WriteLine(exc.Message);
                             }
                         }
                         wb.Close();
